@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Create New Groups / Role dengan nama Planning Shift Approver -->
     <record id="groups_planning_shift_approver" model="res.groups">
         <field name="name">Planning Shift Approver</field>
         <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+    <!-- Membuat Record Rule untuk Internal User yang mana hanya bisa melihat Data terkait Dirinya pada Planning Shift -->
+    <record model="ir.rule" id="rule_internal_user">
+        <field name="name">Own Planning Shift</field>
+        <field name="model_id" ref="sanbe_farma_training.model_planning_slot_training"/>
+        <field name="domain_force">[('resource_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Membuat Record Rule untuk Administrator yang mana bisa melihat semua Data pada Planning Shift -->
+    <record model="ir.rule" id="rule_administator">
+        <field name="name">All Planning Shift</field>
+        <field name="model_id" ref="sanbe_farma_training.model_planning_slot_training"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
     </record>
 
 </odoo>
