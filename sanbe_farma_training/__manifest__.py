@@ -14,6 +14,8 @@
         "security/ir.model.access.csv",
         "data/hr_employee_data.xml",
         "views/planning_role_view.xml",
+        'views/planning_slot_view.xml',
+        'views/planning_menu_view.xml',
     ],
     "auto_install" : False, 
     "installable" : True,
