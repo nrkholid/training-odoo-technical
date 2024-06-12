@@ -10,6 +10,8 @@ class PlanningSlotTraining(models.Model):
                               copy = False, tracking = True, check_company=True)
     resource_id = fields.Many2one('resource.resource', string='Resource', index = True,
                                 copy = False, tracking = True, check_company=True)
+    resource_ids = fields.Many2many('resource.resource', string='Resource',
+                                    compute='_compute_resource_ids')
     company_id = fields.Many2one('res.company', string='Company', index = True, default=lambda self: self.env.company,
                                  copy = False, required=True)
     currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id',
@@ -21,10 +23,8 @@ class PlanningSlotTraining(models.Model):
         ('to_approve', 'To Approve'),
         ('approved', 'Approved')
     ], string='State', default='draft')
-    number_of_mandays = fields.Integer(compute='_compute_number_of_mandays', 
+    number_of_mandays = fields.Integer(compute='_compute_number_of_mandays',
                                     string='Number of Mandays', store = True)
-    resource_ids = fields.Many2many('resource.resource', string='Resource',
-                                    compute='_compute_resource_ids')
     point_rate = fields.Integer(compute='_compute_role_components', 
                                 string='Point Rate', store = True)
     amount = fields.Monetary('Amount', compute='_compute_role_components', store = True,
@@ -35,13 +35,14 @@ class PlanningSlotTraining(models.Model):
                                        string='Expected Revenue', store = True,
                                        currency_field='currency_id')
     line_ids = fields.One2many('planning.slot.training.line', 'slot_training_id', string='Line')
-    actual_progress = fields.Float(compute='_compute_actual_progress', string='Actual Progress')
+    actual_progress = fields.Float(compute='_compute_actual_progress', string='Actual Progress', 
+                                store = True)
     
     @api.depends('line_ids', 'line_ids.current_progress', 'line_ids.state')
     def _compute_actual_progress(self):
         for rec in self:
             if rec.line_ids:
-                line_ids = rec.line_ids.filtered(lambda x : x.state == 'confirm')
+                line_ids = rec.line_ids.filtered(lambda x : x.state == 'confirm' and x.current_progress > 0)
                 actual_progress = line_ids.sorted(key = lambda x : (x.date, x.id))[-1].current_progress \
                     if line_ids else 0
                 rec.actual_progress = actual_progress
