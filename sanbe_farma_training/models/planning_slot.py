@@ -33,11 +33,16 @@ class PlanningSlotTraining(models.Model):
                                   string='Total Points', store = True)
     expected_revenue = fields.Monetary(compute='_compute_expected_revenue', 
                                        string='Expected Revenue', store = True,
-                                       currency_field='currency_id')
+                                       currency_field='currency_id', groups="sanbe_farma_training.groups_planning_shift_approver")
     line_ids = fields.One2many('planning.slot.training.line', 'slot_training_id', string='Line')
     actual_progress = fields.Float(compute='_compute_actual_progress', string='Actual Progress', 
                                 store = True)
     
+    """
+        Compute Actual Progress berdasarkan nilai Current Progress dan State Line IDS
+        dimana Value Actual Progress yang diambil adalah Data Terupdate berdasarkan
+        Tanggal dan ID yang dilakukan secara filtered kemudian disort
+    """
     @api.depends('line_ids', 'line_ids.current_progress', 'line_ids.state')
     def _compute_actual_progress(self):
         for rec in self:
@@ -49,6 +54,11 @@ class PlanningSlotTraining(models.Model):
             else:
                 rec.actual_progress = 0
 
+    """
+        Compute Expected Revenue berdasarkan Number of Mandays dikali Amount dimana
+        Number of Mandays berasal dari selisih Start Date dan End Date, sedangkan
+        Amount berasal dari Amount yang telah ditentukan di Role ID
+    """
     @api.depends('number_of_mandays', 'amount')
     def _compute_expected_revenue(self):
         for rec in self:
@@ -57,6 +67,11 @@ class PlanningSlotTraining(models.Model):
             else:
                 rec.expected_revenue = 0
     
+    """
+        Compute Expected Revenue berdasarkan Number of Mandays dikali Point Rate dimana
+        Number of Mandays berasal dari selisih Start Date dan End Date, sedangkan
+        Point Rate berasal dari Point Rate yang telah ditentukan di Role ID
+    """
     @api.depends('number_of_mandays', 'point_rate')
     def _compute_total_points(self):
         for rec in self:
@@ -65,6 +80,11 @@ class PlanningSlotTraining(models.Model):
             else:
                 rec.total_points = 0
     
+    """
+        Compute yang digunakan untuk menentukan 
+        Nilai Point Rate dan Amount berdasarkan Role ID
+        yang dipilih
+    """
     @api.depends('role_id')
     def _compute_role_components(self):
         for rec in self:
@@ -75,6 +95,10 @@ class PlanningSlotTraining(models.Model):
                 rec.point_rate = 0
                 rec.amount = 0
 
+    """
+        Compute yang digunakan untuk menentukan 
+        Nilai Number of Mandays dari selisih Start Date dan End Date
+    """
     @api.depends('start_date', 'end_date')
     def _compute_number_of_mandays(self):
         for rec in self:
@@ -83,7 +107,11 @@ class PlanningSlotTraining(models.Model):
                 rec.number_of_mandays = number_of_mandays.days
             else:
                 rec.number_of_mandays = 0
-        
+    
+    """
+        Digunakan untuk Domain / Filtering Resource ID yang dapat dipilih
+        berdasarkan Role ID yang dipilih
+    """
     @api.depends('role_id')
     def _compute_resource_ids(self):
         for rec in self:
@@ -92,12 +120,15 @@ class PlanningSlotTraining(models.Model):
             else:
                 rec.resource_ids = self.env['resource.resource'].search([])
     
+    # Action untuk merubah State ke To Approve
     def action_confirm(self):
         return self.write({'state' : 'to_approve'})
     
+    # Action untuk merubah State ke Draft
     def action_set_to_draft(self):
         return self.write({'state' : 'draft'})
     
+    # Action untuk merubah State ke Approved
     def action_approved(self):
         return self.write({'state' : 'approved'})
     

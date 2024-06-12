@@ -7,7 +7,6 @@
         web_icon="sanbe_farma_training,static/description/odoo_icon.png"
         sequence="900"/>
     
-    
     <menuitem
         id="planning_shift_main_menu"
         name="Planning Shift"
