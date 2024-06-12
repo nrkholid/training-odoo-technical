@@ -10,7 +10,7 @@
                 <field name="active" column_invisible="1"/>
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="resource_ids" widget="many2many_avatar_resource" optional="show"/>
+                <field name="resource_ids" widget="many2many_tags" optional="show"/>
                 <field name="color" widget="color_picker" optional="hide"/>
             </tree>
         
@@ -62,6 +62,7 @@
                     <widget name="web_ribbon" title="Archieved" bg_color="text-bg-danger"
                         invisible="active"/>
                     <group>
+                        <field name="available_resource_ids" invisible="1"/>
                         <field name="active" invisible="1"/>
                         <field name="company_id" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
@@ -71,7 +72,7 @@
                             required="1"/>
                         <field name="point_rate" required="1"/>
                         <field name="amount" required="1"/>
-                        <field name="color"/>
+                        <field name="color" widget="color_picker"/>
                     </group>
                 </sheet>
             </form>
