@@ -44,6 +44,7 @@
                         string="Approve"
                         type="object"
                         invisible="state != 'to_approve'"
+                        groups="sanbe_farma_training.groups_planning_shift_approver"
                         class="oe_highlight"
                     />
                     <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,approved" />
