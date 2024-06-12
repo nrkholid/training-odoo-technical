@@ -92,6 +92,15 @@ class PlanningSlotTraining(models.Model):
             else:
                 rec.resource_ids = self.env['resource.resource'].search([])
     
+    def action_confirm(self):
+        return self.write({'state' : 'to_approve'})
+    
+    def action_set_to_draft(self):
+        return self.write({'state' : 'draft'})
+    
+    def action_approved(self):
+        return self.write({'state' : 'approved'})
+    
 class PlanningSlotTrainingLine(models.Model):
     _name = 'planning.slot.training.line'
     _description = 'Planning Slot Training Line'
