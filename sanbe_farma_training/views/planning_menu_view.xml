@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem
+        id="planning_shift_root_menu"
+        name="Planning Shift"
+        web_icon="sanbe_farma_training,static/description/odoo_icon.png"
+        sequence="900"/>
+    
+    
+    <menuitem
+        id="planning_shift_main_menu"
+        name="Planning Shift"
+        action="planning_slot_action"
+        parent="planning_shift_root_menu"
+        sequence="5"/>
+
+</odoo>

@@ -15,7 +15,7 @@ class PlanningSlotTraining(models.Model):
     currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id',
                                   store = True)
     start_date = fields.Date('Start Date', default=lambda self: fields.Date.context_today(self))
-    end_date = fields.Date('Enda Date', default=lambda self:fields.Date.context_today(self))
+    end_date = fields.Date('End Date', default=lambda self:fields.Date.context_today(self))
     state = fields.Selection([
         ('draft', 'Draft'),
         ('to_approve', 'To Approve'),
@@ -34,7 +34,7 @@ class PlanningSlotTraining(models.Model):
     expected_revenue = fields.Monetary(compute='_compute_expected_revenue', 
                                        string='Expected Revenue', store = True,
                                        currency_field='currency_id')
-    line_ids = fields.One2many('planning.slot.line.training', 'slot_training_id', string='Line')
+    line_ids = fields.One2many('planning.slot.training.line', 'slot_training_id', string='Line')
     actual_progress = fields.Float(compute='_compute_actual_progress', string='Actual Progress')
     
     @api.depends('line_ids', 'line_ids.current_progress', 'line_ids.state')
