@@ -11,6 +11,7 @@
         "hr",
     ],
     "data" : [
+        "security/planning_slot_role.xml",
         "security/ir.model.access.csv",
         "data/hr_employee_data.xml",
         "views/planning_role_view.xml",
