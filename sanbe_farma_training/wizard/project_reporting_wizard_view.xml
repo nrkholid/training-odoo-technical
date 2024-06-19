@@ -9,6 +9,7 @@
                 <group>
                     <field name="project_ids" widget="many2many_tags" 
                         options="{'no_create' : True}" required="1"/>
+                    <field name="template" required="1" widget="radio"/>
                 </group>
                 <footer>
                     <button name="action_export_project_report"
