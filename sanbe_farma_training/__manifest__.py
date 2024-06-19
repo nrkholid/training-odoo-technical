@@ -9,6 +9,7 @@
         "base", 
         "mail",
         "hr",
+        "project",
     ],
     "data" : [
         "security/planning_slot_role.xml",
