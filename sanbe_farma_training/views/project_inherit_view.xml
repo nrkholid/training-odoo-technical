@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <!-- 'create' : 0, 'edit' : 0, 'delete' : 0 -->
+    <record id="project_planning_slot_action" model="ir.actions.act_window">
+        <field name="name">Planning Shift</field>
+        <field name="res_model">planning.slot.training</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{'search_default_project_id' : active_id, 
+                                'default_project_id' : active_id}</field>
+        <field name="search_view_id" ref="planning_slot_training_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            </p>
+        </field>
+    </record>
+
+    <record id="project_planning_slot_action_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="project_planning_slot_action"/>
+        <field name="view_id" ref="planning_slot_view_tree"/>
+    </record>
+
+    <record id="project_planning_slot_action_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="act_window_id" ref="project_planning_slot_action"/>
+        <field name="view_id" ref="planning_slot_view_form"/>
+    </record>
+
+    <record id="edit_project_inherit_planning_shift" model="ir.ui.view">
+        <field name="name">project.project.view.form.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" 
+                    name="action_view_planning_shift" icon="fa-list">
+                    <field string="Planning Shift" 
+                        name="planning_shift_count" 
+                        widget="statinfo"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//group[1]/group[2]/field[@name='user_id']" position="before">
+                <field name="expected_revenue"/>
+                <field name="total_points"/>
+                <field name="project_actual_progress"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_project_inherit_planning_shift" model="ir.ui.view">
+        <field name="name">project.project.view.list.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="expected_revenue"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

@@ -7,17 +7,33 @@
         <field name="arch" type="xml">
 
             <tree string="Planning Shift">
+                <field name="currency_id" column_invisible="1"/>
+                <field name="project_id"/>
                 <field name="name" />
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="role_id"/>
                 <field name="resource_id"/>
                 <field name="number_of_mandays"/>
-                <field name="total_points"/>
-                <field name="expected_revenue"/>
+                <field name="total_points" avg="Average Points" groups="sanbe_farma_training.groups_planning_shift_approver"/>
+                <field name="expected_revenue" sum="Total Expected Revenue"/>
                 <field name="actual_progress"/>
                 <field name="state" widget="badge" decoration-success="state == 'approved'"
                     decoration-info="state == 'draft'" decoration-warning="state == 'to_approve'"/>
+            </tree>
+
+        </field>
+    </record>
+
+    <record id="planning_slot_training_simple_view_tree" model="ir.ui.view">
+        <field name="name">planning.slot.training.simple.view.tree</field>
+        <field name="model">planning.slot.training</field>
+        <field name="arch" type="xml">
+
+            <tree string="Planning Shift">
+                <field name="name"/>
+                <field name="role_id"/>
+                <field name="resource_id"/>
             </tree>
 
         </field>
@@ -56,6 +72,7 @@
 
                     <group string="General Information" name="general_information">
                         <group>
+                            <field name="project_id"/>
                             <field name="start_date"/>
                             <field name="end_date"/>
                             <field name="number_of_mandays"/>
@@ -80,8 +97,8 @@
 
                     <notebook>
                         <page string="Progress Detail Information">
-                            <field name="line_ids" readonly="state != 'approved'">
-                                <tree editable="bottom">
+                            <field name="line_ids" force_save="1" readonly="1">
+                                <tree>
                                     <field name="date"/>
                                     <field name="slot_training_id" string="Planning Name" readonly="1"/>
                                     <field name="role_id" readonly="1"/>
@@ -97,7 +114,37 @@
                         </page>
                     </notebook>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
+        </field>
+    </record>
+
+    <record id="planning_slot_training_view_search" model="ir.ui.view">
+        <field name="name">planning.slot.training.view.search</field>
+        <field name="model">planning.slot.training</field>
+        <field name="arch" type="xml">
+            <search string="Planning Shift Search">
+                <field name="name"/>
+                <field name="role_id"/>
+                <field name="resource_id"/>
+                <field name="project_id" />
+                <separator/>
+                <filter name="draft_state" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="to_approve_state" string="To Approve" domain="[('state', '=', 'to_approve')]"/>
+                <filter name="approved_state" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter name="date" string="Date" date="start_date" />
+                <group string="Group By">
+                    <filter name="group_by_state" string="State" context="{'group_by': 'state'}" />
+                    <filter name="group_by_role_id" string="Role" context="{'group_by': 'role_id'}" />
+                    <filter name="group_by_resource_id" string="Resource" context="{'group_by': 'resource_id'}" />
+                    <filter name="group_by_project_id" string="Project" context="{'group_by': 'project_id'}" />
+                </group>
+            </search>
         </field>
     </record>
 
@@ -107,10 +154,25 @@
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
+        <field name="search_view_id" ref="planning_slot_training_view_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
             </p>
         </field>
+    </record>
+
+    <record id="planning_slot_action_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="planning_slot_action"/>
+        <field name="view_id" ref="planning_slot_view_tree"/>
+    </record>
+
+    <record id="planning_slot_action_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="act_window_id" ref="planning_slot_action"/>
+        <field name="view_id" ref="planning_slot_view_form"/>
     </record>
 
 </odoo>

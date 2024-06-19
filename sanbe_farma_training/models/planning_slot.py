@@ -4,6 +4,7 @@ from odoo import _, api, fields, models
 class PlanningSlotTraining(models.Model):
     _name = 'planning.slot.training'
     _description = 'Planning Slot Training'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     
     name = fields.Char('Description')
     role_id = fields.Many2one('planning.role.training', string='Role', index = True,
@@ -37,6 +38,8 @@ class PlanningSlotTraining(models.Model):
     line_ids = fields.One2many('planning.slot.training.line', 'slot_training_id', string='Line')
     actual_progress = fields.Float(compute='_compute_actual_progress', string='Actual Progress', 
                                 store = True)
+    project_id = fields.Many2one('project.project', string='Project',
+                                index=True, copy = False, tracking = True)
     
     """
         Compute Actual Progress berdasarkan nilai Current Progress dan State Line IDS

@@ -6,6 +6,7 @@ class PlanningRoleTraining(models.Model):
     _description = 'Planning Role Training'
     _order = 'name asc'
     
+    # Menentukan nilai Default untuk Color secara Angka Random dari 1-11
     def _get_default_color(self):
         return randint(1, 11)
     
