@@ -18,6 +18,7 @@
         "views/planning_role_view.xml",
         'views/planning_slot_view.xml',
         'views/planning_menu_view.xml',
+        'views/project_inherit_view.xml',
     ],
     "auto_install" : False, 
     "installable" : True,
