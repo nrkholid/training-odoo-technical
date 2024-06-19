@@ -50,3 +50,15 @@ class ProjectProject(models.Model):
         # action['context'] = {'search_default_project_id' : self.id, 'default_project_id' : self.id}
         return action
     
+    def action_project_reporting_wizard(self):
+        context = {'default_project_ids' : self.ids}
+        return {
+            'name' : "Project Reporting Wizard",
+            'type' : "ir.actions.act_window",
+            'res_model' : "project.reporting.wizard",
+            "view_mode" : "form",
+            "view_id" : self.env.ref('sanbe_farma_training.project_reporting_wizard_view_form').id,
+            "target" : "new",
+            "context" : context
+        }
+    

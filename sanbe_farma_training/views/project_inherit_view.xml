@@ -45,6 +45,14 @@
                 </button>
             </xpath>
 
+            <xpath expr="//header" position="inside">
+                <button name="action_project_reporting_wizard"
+                    string="Export Report"
+                    type="object"
+                    class="oe_highlight"
+                />
+            </xpath>
+
             <xpath expr="//group[1]/group[2]/field[@name='user_id']" position="before">
                 <field name="expected_revenue"/>
                 <field name="total_points"/>
