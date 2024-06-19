@@ -18,6 +18,7 @@
                 <field name="total_points" avg="Average Points" groups="sanbe_farma_training.groups_planning_shift_approver"/>
                 <field name="expected_revenue" sum="Total Expected Revenue"/>
                 <field name="actual_progress"/>
+                <field name="actual_revenue" sum="Total Actual Revenue"/>
                 <field name="state" widget="badge" decoration-success="state == 'approved'"
                     decoration-info="state == 'draft'" decoration-warning="state == 'to_approve'"/>
             </tree>
@@ -93,6 +94,7 @@
                         <field name="total_points"/>
                         <field name="expected_revenue"/>
                         <field name="actual_progress"/>
+                        <field name="actual_revenue"/>
                     </group>
 
                     <notebook>

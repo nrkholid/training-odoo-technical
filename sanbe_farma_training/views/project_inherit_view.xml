@@ -49,6 +49,7 @@
                 <field name="expected_revenue"/>
                 <field name="total_points"/>
                 <field name="project_actual_progress"/>
+                <field name="project_actual_revenue"/>
             </xpath>
 
         </field>
