@@ -38,6 +38,10 @@ class ProjectReportingWizard(models.TransientModel):
 
     project_ids = fields.Many2many('project.project', 
                                    string='Project')
+    template = fields.Selection([
+        ('template_1', 'Template 1'),
+        ('template_2', 'Template 2')
+    ], string='Template', default = 'template_1')
     excel_file = fields.Binary('Excel File', readonly=True)
     wbf = {}
 
@@ -45,6 +49,9 @@ class ProjectReportingWizard(models.TransientModel):
         if not self.project_ids:
             raise ValidationError('Please Choose the Projects')
         
+        return self._prepare_excel_template_1()
+    
+    def _prepare_excel_template_1(self):
         fp = BytesIO()
         workbook = xlsxwriter.Workbook(fp)
         workbook = self.add_workbook_format(workbook)
@@ -52,9 +59,13 @@ class ProjectReportingWizard(models.TransientModel):
         column, row = 0, 0
 
         for project in self.project_ids:
+            worksheet = workbook.add_worksheet("{}".format(project.name))
+            if self.template == 'template_2':
+                self._prepare_project_report_header_template_2(worksheet, wbf, project)
+                row = 4
+
             headercolumn = 0
             content_line, linenum = row + 1, 1
-            worksheet = workbook.add_worksheet("{}".format(project.name))
             project_report_header = self._prepare_header_values()
 
             for header in project_report_header:
@@ -76,6 +87,16 @@ class ProjectReportingWizard(models.TransientModel):
                 )
                 content_line += 1
                 linenum += 1
+            
+            if self.template == 'template_2':
+                total = sum([record['expected_revenue'] for record in planning_shift_values])
+                # merge_range(0, 1, 0, 8)
+                # 0 : Posisi Baris ke - 1
+                # 1 : Posisi Kolom ke - A,
+                # 0 : Posisi Baris ke - 1,
+                # 8 : Posisi Kolom ke - I,
+                worksheet.merge_range(content_line + 1, 0, content_line + 2, 6, "Total", wbf['header'])
+                worksheet.write(content_line + 1, 7, total, wbf['content'])
             
             # for val in planning_shift_values:
             #     worksheet.write(content_line, 0, linenum, wbf['content'])
@@ -101,9 +122,9 @@ class ProjectReportingWizard(models.TransientModel):
             ),
             "target": "new",
         }
-    
+
     def _prepare_header_values(self):
-        return ["NO", "START_DATE", "END_DATE", "SHIFT_NAME", "ROLE_NAME", "RESOURCE", "ACTUAL_PROGRESS"]
+        return ["NO", "START_DATE", "END_DATE", "SHIFT_NAME", "ROLE_NAME", "RESOURCE", "ACTUAL_PROGRESS", "EXPECTED_REVENUE"]
     
     def _prepare_planning_shift_values(self, project):
         datas = []
@@ -116,7 +137,8 @@ class ProjectReportingWizard(models.TransientModel):
                 'shift_name' : res.name,
                 'role_name' : res.role_id.name,
                 'resource' : res.resource_id.name,
-                'actual_progress' : res.actual_progress
+                'actual_progress' : res.actual_progress,
+                'expected_revenue' : res.expected_revenue,
             })
         # datas = [{
         #         'start_date' : res.start_date,
@@ -127,5 +149,11 @@ class ProjectReportingWizard(models.TransientModel):
         #         'actual_progress' : res.actual_progress
         #     } for res in result.planning_shift_line_ids]
         return datas
-
+    
+    def _prepare_project_report_header_template_2(self, worksheet, wbf, project):
+        worksheet.merge_range("A1:H1", "PROJECT PLANNING SHIFT", wbf['header'])
+        worksheet.write("A3", "Nama Project", wbf['header'])
+        worksheet.write("B3", project.name, wbf['header'])
+        worksheet.write("A4", "Project Manager", wbf['header'])
+        worksheet.write("B4", project.user_id.name, wbf['header'])
     
