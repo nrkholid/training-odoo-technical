@@ -45,6 +45,25 @@
                 </button>
             </xpath>
 
+            <xpath expr="//group[1]/group[2]/field[@name='user_id']" position="before">
+                <field name="expected_revenue"/>
+                <field name="total_points"/>
+                <field name="project_actual_progress"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_project_inherit_planning_shift" model="ir.ui.view">
+        <field name="name">project.project.view.list.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="expected_revenue"/>
+            </xpath>
+
         </field>
     </record>
 
