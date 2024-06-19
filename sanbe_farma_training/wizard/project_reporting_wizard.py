@@ -57,12 +57,14 @@ class ProjectReportingWizard(models.TransientModel):
         workbook = self.add_workbook_format(workbook)
         wbf = self.wbf
         column, row = 0, 0
+        method = 'orm'
 
         for project in self.project_ids:
             worksheet = workbook.add_worksheet("{}".format(project.name))
             if self.template == 'template_2':
                 self._prepare_project_report_header_template_2(worksheet, wbf, project)
                 row = 4
+                method = 'query'
 
             headercolumn = 0
             content_line, linenum = row + 1, 1
@@ -74,7 +76,7 @@ class ProjectReportingWizard(models.TransientModel):
                 headercolumn += 1
 
             column_length = len(project_report_header)
-            planning_shift_values = self._prepare_planning_shift_values(project)
+            planning_shift_values = self._prepare_planning_shift_values(project, method)
             for val in planning_shift_values:
                 self._set_values(
                     worksheet,
@@ -126,29 +128,56 @@ class ProjectReportingWizard(models.TransientModel):
     def _prepare_header_values(self):
         return ["NO", "START_DATE", "END_DATE", "SHIFT_NAME", "ROLE_NAME", "RESOURCE", "ACTUAL_PROGRESS", "EXPECTED_REVENUE"]
     
-    def _prepare_planning_shift_values(self, project):
-        datas = []
-        result = self.env['project.project'].browse([project.id])
-        if not result : return datas
-        for res in result.planning_shift_line_ids:
-            datas.append({
-                'start_date' : res.start_date.strftime("%d %m %Y"),
-                'end_date' : res.end_date.strftime("%d %m %Y"),
-                'shift_name' : res.name,
-                'role_name' : res.role_id.name,
-                'resource' : res.resource_id.name,
-                'actual_progress' : res.actual_progress,
-                'expected_revenue' : res.expected_revenue,
-            })
-        # datas = [{
-        #         'start_date' : res.start_date,
-        #         'end_date' : res.end_date,
-        #         'shift_name' : res.name,
-        #         'role_name' : res.role_id.name,
-        #         'resource' : res.resource_id.name,
-        #         'actual_progress' : res.actual_progress
-        #     } for res in result.planning_shift_line_ids]
-        return datas
+    def _prepare_planning_shift_values(self, project, method):
+        if method == 'orm':
+            datas = []
+            result = self.env['project.project'].browse([project.id])
+            if not result : return datas
+            for res in result.planning_shift_line_ids:
+                datas.append({
+                    'start_date' : res.start_date.strftime("%d %m %Y"),
+                    'end_date' : res.end_date.strftime("%d %m %Y"),
+                    'shift_name' : res.name,
+                    'role_name' : res.role_id.name,
+                    'resource' : res.resource_id.name,
+                    'actual_progress' : res.actual_progress,
+                    'expected_revenue' : res.expected_revenue,
+                })
+            # datas = [{
+            #         'start_date' : res.start_date,
+            #         'end_date' : res.end_date,
+            #         'shift_name' : res.name,
+            #         'role_name' : res.role_id.name,
+            #         'resource' : res.resource_id.name,
+            #         'actual_progress' : res.actual_progress
+            #     } for res in result.planning_shift_line_ids]
+            return datas
+        else:
+            try:
+                query = """
+                    SELECT 
+                        TO_CHAR(pst.start_date, 'DD/MM/YYYY') as START_DATE,
+                        TO_CHAR(pst.end_date, 'DD/MM/YYYY') as END_DATE,
+                        pst.name AS SHIFT_NAME,
+                        prt.name AS ROLE_NAME,
+                        rr.name AS RESOURCE,
+                        pst.actual_progress as ACTUAL_PROGRESS,
+                        pst.expected_revenue as EXPECTED_REVENUE
+                    FROM planning_slot_training pst
+                    INNER JOIN project_project pp ON pp.id = pst.project_id
+                    INNER JOIN planning_role_training prt ON prt.id = pst.role_id
+                    INNER JOIN resource_resource rr ON rr.id = pst.resource_id
+                    WHERE pst.project_id IN %s
+                """
+                self._cr.execute(query, [tuple(project.ids)])
+                result = self._cr.dictfetchall()
+                # {'start_date' : value, 'end_date' : value}
+
+                # result = self._cr.fetchall()
+                # (value, value, value)
+                return result
+            except Exception as err:
+                raise ValidationError("Error : {}".format(err))
     
     def _prepare_project_report_header_template_2(self, worksheet, wbf, project):
         worksheet.merge_range("A1:H1", "PROJECT PLANNING SHIFT", wbf['header'])
