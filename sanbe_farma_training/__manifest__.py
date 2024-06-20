@@ -16,6 +16,7 @@
         "security/planning_slot_role.xml",
         "security/ir.model.access.csv",
         "data/hr_employee_data.xml",
+        "report/planning_slot_training_report_view.xml",
         "wizard/project_reporting_wizard_view.xml",
         "views/planning_role_view.xml",
         'views/planning_slot_view.xml',

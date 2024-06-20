@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="report.paperformat" id="planning_slot_training_format">
+            <field name="name">Planning Shift Report</field>
+            <field name="default" eval="False" />
+            <!-- <field name="format">a5</field> --> <!-- Tips : Bisa pilih ukuran yg sudah ada -->
+            <field name="format">custom</field>
+            <field name="page_width">241</field>
+            <field name="page_height">165</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">2</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">35</field> <!-- Tips : Hide unnecessary header -->
+        </record>
+
+        <template id="planning_slot_training_report_template">
+            <t t-call="web.html_container">     
+                <t t-call="web.basic_layout">                
+                    <t t-foreach="docs" t-as="o">
+                        <div class="page" style="page-break-after:always;">
+                            <div class="container" style="margin-top: -5px">
+                                <div class="row" style="margin-left: 8px">
+                                    <div class="col">
+                                        <span style="font-size: 16px;" t-field="o.company_id.name"/>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top : -6px;">
+                                    <div class="col text-center text-uppercase font-weight-bold">
+                                        <span style="font-size : 16px;">
+                                            PLANNING SHIFT
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top : -6px;">
+                                    <div class="col text-center text-uppercase font-weight-bold">
+                                        <span style="font-size : 16px;">
+                                            <t t-esc="o.start_date.strftime('%d %B %Y')"/> - <t t-esc="o.end_date.strftime('%d %B %Y')"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" style="margin-top : -10px;">
+                                    <div class="col-6">
+                                        <table class="table table-borderless" style="width:100%;">
+                                            <tr style="font-size: 14px;" class="text-left text-uppercase">
+                                                <td colspan="2" width="30%" style="vertical-align : middle; padding-bottom: 0px;">Role Name</td>
+                                                <td colspan="1" width="5%" style="vertical-align : middle; padding-bottom: 0px;">:</td>
+                                                <td colspan="3" width="65%" style="vertical-align : middle; padding-bottom: 0px;"><span t-field="o.role_id.name"/></td>
+                                            </tr>
+                                            <tr style="font-size: 14px;" class="text-left text-uppercase">
+                                                <td colspan="2" width="30%" style="vertical-align : middle; padding-bottom: 1px; padding-top: 0px;">Resource</td>
+                                                <td colspan="1" width="5%" style="vertical-align : middle; padding-bottom: 1px; padding-top: 0px;">:</td>
+                                                <td colspan="3" width="65%" style="vertical-align : middle; padding-bottom: 1px; padding-top: 0px;"><span t-field="o.resource_id.name"/></td>
+                                            </tr>
+                                            <tr style="font-size: 14px;" class="text-left text-uppercase">
+                                                <td colspan="2" width="30%" style="vertical-align : middle; padding-bottom: 1px; padding-top: 1px;">Expected Revenue</td>
+                                                <td colspan="1" width="5%" style="vertical-align : middle; padding-bottom: 1px; padding-top: 1px;">:</td>
+                                                <td colspan="3" width="65%" style="vertical-align : middle; padding-bottom: 1px; padding-top: 1px;"><span t-field="o.expected_revenue"/></td>
+                                            </tr>
+                                            <tr style="font-size: 14px;" class="text-left text-uppercase">
+                                                <td colspan="2" width="30%" style="vertical-align : middle; padding-bottom: 0px; padding-top: 2px;">Actual Progress</td>
+                                                <td colspan="1" width="5%" style="vertical-align : middle; padding-bottom: 0px; padding-top: 2px;">:</td>
+                                                <td colspan="3" width="65%" style="vertical-align : middle; padding-bottom: 0px; padding-top: 2px;"><span><t t-esc="o.actual_progress"/></span></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <t t-if="o.line_ids">
+                                    <t t-set="number" t-value="1"/>
+                                    <div class="row mt-2">
+                                        <table class="table table-bordered" style="font-size : 14px; border : 2px solid black;">
+                                            <tr class="text-center">
+                                                <th colspan="2" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;">
+                                                    Date
+                                                </th>
+                                                <th colspan="4" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;">
+                                                    Name
+                                                </th>
+                                                <th colspan="2" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;">
+                                                    Previous Progress
+                                                </th>
+                                                <th colspan="2" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;">
+                                                    Actual Progress
+                                                </th>
+                                                <th colspan="2" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;">
+                                                    State
+                                                </th>
+                                            </tr>
+                                            <t t-foreach="o.line_ids.filtered(lambda r : r.state == 'confirm')" t-as="line">
+                                                <tr>
+                                                    <td colspan="2" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;"><t t-esc="line.date.strftime('%d / %m / %Y')" /></td>
+                                                    <td colspan="4" class="text-center" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;"><span t-field="line.name"/></td>
+                                                    <td colspan="2" class="text-center" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;"><span t-field="line.previous_progress"/></td>
+                                                    <td colspan="2" class="text-center" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;"><span t-field="line.current_progress"/></td>
+                                                    <td colspan="2" class="text-right" style="vertical-align : middle; padding-top : 5px; border : 2px solid black;"><span t-field="line.state"/></td>
+                                                </tr>
+                                            </t>
+                                        </table>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_planning_slot_training" model="ir.actions.report">
+            <field name="name">Report = Planning Shift</field>
+            <field name="model">planning.slot.training</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">sanbe_farma_training.planning_slot_training_report_template</field>
+            <field name="report_file">sanbe_farma_training.planning_slot_training_report_template</field>
+            <field name="print_report_name">'%s' % object.name</field>
+            <field name="paperformat_id" ref="planning_slot_training_format"/>
+            <field name="binding_model_id" ref="model_planning_slot_training"/>
+            <field name="binding_type">report</field>
+            <field name="binding_view_types">form</field>
+        </record>
+
+    </data>
+</odoo>
