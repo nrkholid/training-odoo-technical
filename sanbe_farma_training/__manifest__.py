@@ -24,6 +24,7 @@
         'views/planning_menu_view.xml',
         'views/project_inherit_view.xml',
         'views/project_update_inherit_view.xml',
+        'views/sale_inherit_view.xml',
     ],
     "auto_install" : False, 
     "installable" : True,

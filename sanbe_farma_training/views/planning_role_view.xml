@@ -6,7 +6,7 @@
         <field name="model">planning.role.training</field>
         <field name="arch" type="xml">
 
-            <tree string="Planning Role">
+            <tree string="Planning Role" editable"bottom">
                 <field name="active" column_invisible="1"/>
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
