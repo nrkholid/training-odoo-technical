@@ -40,7 +40,9 @@ class ProjectReportingWizard(models.TransientModel):
                                    string='Project')
     template = fields.Selection([
         ('template_1', 'Template 1'),
-        ('template_2', 'Template 2')
+        ('template_2', 'Template 2'),
+        ('pdf', 'PDF Report'),
+        ('other', 'Other Report'),
     ], string='Template', default = 'template_1')
     excel_file = fields.Binary('Excel File', readonly=True)
     wbf = {}
@@ -48,8 +50,12 @@ class ProjectReportingWizard(models.TransientModel):
     def action_export_project_report(self):
         if not self.project_ids:
             raise ValidationError('Please Choose the Projects')
-        
-        return self._prepare_excel_template_1()
+        if self.template not in ['pdf', 'other']:
+            return self._prepare_excel_template_1()
+        elif self.template == 'pdf':
+            return self._prepare_pdf_report()
+        else:
+            return self._prepare_other_report()
     
     def _prepare_excel_template_1(self):
         fp = BytesIO()
@@ -186,3 +192,16 @@ class ProjectReportingWizard(models.TransientModel):
         worksheet.write("A4", "Project Manager", wbf['header'])
         worksheet.write("B4", project.user_id.name, wbf['header'])
     
+    def _prepare_pdf_report(self):
+        result = self.env['planning.slot.training'].search([('project_id', '=', self.project_ids.ids)])
+        if not result:
+            raise ValidationError('Data Not Found')
+        planning_shift_ids = [record.id for record in result]
+        return self.env.ref('sanbe_farma_training.action_report_planning_slot_training').report_action(planning_shift_ids)
+    
+    def _prepare_other_report(self):
+        datas = [{
+            'company_name' : record.company_id.name,
+            'project_name' : record.name
+        } for record in self.project_ids]
+        return self.env.ref('sanbe_farma_training.action_report_planning_slot_training_query').report_action(self, data=datas)
